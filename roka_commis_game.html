@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>ROKA DXB — Commis Training</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#0D0D0D;min-height:100vh;color:#FFF;overflow-x:hidden}
+
+  #splash{position:fixed;inset:0;background:#0D0D0D;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:32px;text-align:center;overflow-y:auto}
+  #splash .logo{font-size:11px;letter-spacing:4px;color:#666;text-transform:uppercase;margin-bottom:12px}
+  #splash h1{font-size:30px;font-weight:900;line-height:1.1;margin-bottom:8px}
+  #splash h1 span{color:#E8B84B}
+  #splash p{color:#888;font-size:14px;line-height:1.6;margin-bottom:24px;max-width:280px}
+  .filter-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:10px}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+  .filter-btn{padding:7px 14px;border-radius:100px;border:2px solid #333;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+  .filter-btn.active{border-color:#E8B84B;color:#E8B84B;background:rgba(232,184,75,.1)}
+  .start-btn{background:#E8B84B;color:#0D0D0D;font-size:16px;font-weight:800;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;width:100%;max-width:280px}
+
+  #game-header{background:#0D0D0D;padding:14px 16px 10px;position:sticky;top:0;z-index:50;border-bottom:1px solid #1A1A1A}
+  .header-row{display:flex;justify-content:space-between;align-items:center}
+  .progress-label{font-size:11px;color:#555;letter-spacing:1px;text-transform:uppercase}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .score-badge{background:#1A1A1A;border-radius:100px;padding:5px 12px;font-size:12px;font-weight:700;color:#E8B84B}
+  .menu-btn{background:#1A1A1A;border:1px solid #2A2A2A;color:#888;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;cursor:pointer}
+  .progress-bar{height:3px;background:#1A1A1A;border-radius:2px;margin-top:10px}
+  .progress-fill{height:100%;background:#E8B84B;border-radius:2px;transition:width .4s ease}
+
+  #card-area{padding:16px}
+  .card{background:#161616;border-radius:20px;overflow:hidden;border:1px solid #222}
+  .card-emoji{width:100%;height:160px;background:linear-gradient(135deg,#1A1A1A,#252525);display:flex;align-items:center;justify-content:center;font-size:72px}
+  .card-body{padding:18px}
+  .section-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:5px}
+  .spanish-name{font-size:20px;font-weight:800;color:#FFF;margin-bottom:2px;line-height:1.25}
+
+  /* Fish card special */
+  .fish-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#4AAAD4;margin-bottom:5px}
+  .fish-japanese{font-size:28px;font-weight:900;color:#E8B84B;margin-bottom:4px}
+  .fish-spanish{font-size:15px;color:#888;margin-bottom:2px}
+
+  .pronounce-prompt{display:flex;align-items:center;gap:8px;background:#1A1A1A;border-radius:10px;padding:10px 14px;margin:14px 0 10px;cursor:pointer;border:1px solid #2A2A2A;transition:border-color .2s}
+  .pronounce-prompt:active{border-color:#E8B84B}
+  .pronounce-icon{font-size:20px;flex-shrink:0}
+  .pronounce-text{font-size:12px;color:#888;line-height:1.4}
+  .pronounce-text strong{color:#E8B84B;display:block;font-size:13px}
+
+  .en-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:10px}
+  .word-row{display:flex;flex-wrap:wrap;gap:5px 7px;margin-bottom:16px;align-items:center;line-height:1.8}
+  .word-block{position:relative;display:inline-block}
+  .word-text{font-size:17px;font-weight:700;color:#FFF;white-space:nowrap}
+  .word-cover{position:absolute;inset:-2px -1px;background:#E8B84B;border-radius:4px;transition:transform .45s cubic-bezier(.34,1.56,.64,1),opacity .3s;transform-origin:left center}
+  .word-cover.revealed{transform:scaleX(0);opacity:0}
+  .word-punct{font-size:17px;font-weight:700;color:#444}
+
+  /* Fish answer blocks */
+  .fish-answers{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .fish-answer-row{display:flex;flex-direction:column;gap:4px}
+  .fish-answer-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555}
+  .fish-word-row{display:flex;flex-wrap:wrap;gap:5px 7px;align-items:center}
+
+  .input-area{display:flex;gap:8px;margin-bottom:10px}
+  .guess-input{flex:1;background:#0D0D0D;border:2px solid #2A2A2A;border-radius:12px;padding:12px 14px;color:#FFF;font-size:15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;outline:none;transition:border-color .2s}
+  .guess-input:focus{border-color:#444}
+  .guess-input.wrong{border-color:#FF4444;animation:shake .3s}
+  .guess-input.right{border-color:#44BB77}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .check-btn{background:#E8B84B;color:#0D0D0D;font-size:15px;font-weight:800;padding:12px 18px;border-radius:12px;border:none;cursor:pointer}
+
+  .status-line{font-size:12px;color:#555;margin-bottom:10px;min-height:18px}
+  .hint-row{display:flex;gap:8px;margin-bottom:10px}
+  .hint-btn{flex:1;background:#1A1A1A;border:1px solid #252525;color:#666;font-size:12px;font-weight:600;padding:9px 6px;border-radius:10px;cursor:pointer}
+  .hint-btn.used{opacity:.3;cursor:not-allowed}
+  .reveal-btn{flex:1;background:#1A1A1A;border:1px solid #252525;color:#555;font-size:12px;font-weight:600;padding:9px 6px;border-radius:10px;cursor:pointer}
+
+  .info-box{background:#1A1A1A;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:none}
+  .info-box.visible{display:block}
+  .info-box p{font-size:13px;color:#AAA;line-height:1.55}
+  .info-box p strong{color:#E8B84B}
+  .info-box.hint{border-left:3px solid #E8B84B}
+  .info-box.sauce{border-left:3px solid #4AAAD4}
+  .info-box.tip{border-left:3px solid #44BB77;background:#0D1A10}
+  .sauce-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#4AAAD4;margin-bottom:7px}
+  .tip-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#44BB77;margin-bottom:7px}
+
+  .next-btn{width:100%;background:#E8B84B;color:#0D0D0D;font-size:15px;font-weight:800;padding:14px;border-radius:12px;border:none;cursor:pointer;display:none;margin-top:4px}
+  .next-btn.visible{display:block}
+
+  #complete{display:none;position:fixed;inset:0;background:#0D0D0D;z-index:100;align-items:center;justify-content:center;flex-direction:column;padding:32px;text-align:center}
+  #complete.visible{display:flex}
+  #complete h2{font-size:28px;font-weight:900;margin-bottom:8px}
+  #complete h2 span{color:#E8B84B}
+  #complete p{color:#888;font-size:14px;margin-bottom:32px;line-height:1.6}
+  .stars{font-size:40px;margin-bottom:16px;letter-spacing:4px}
+  .restart-btn{background:#E8B84B;color:#0D0D0D;font-size:16px;font-weight:800;padding:16px;border-radius:100px;border:none;cursor:pointer;width:100%;max-width:280px}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">ROKA DXB</div>
+  <h1>Aprende el<br><span>Menú</span> 🍣</h1>
+  <p>Lee el nombre en español, dilo en voz alta en inglés, luego escríbelo.</p>
+  <div class="filter-label">Elige sección</div>
+  <div class="filter-row" id="filter-row"></div>
+  <button class="start-btn" onclick="startGame()">¡Empezar! →</button>
+</div>
+
+<div id="game-header" style="display:none">
+  <div class="header-row">
+    <span class="progress-label" id="progress-label">Plato 1 de 10</span>
+    <div class="header-right">
+      <span class="score-badge" id="score-badge">⭐ 0</span>
+      <button class="menu-btn" onclick="goToMenu()">☰ Menú</button>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div id="card-area" style="display:none"></div>
+
+<div id="complete">
+  <div class="stars" id="stars">⭐⭐⭐</div>
+  <h2>¡Bien <span>hecho!</span></h2>
+  <p id="complete-msg"></p>
+  <button class="restart-btn" onclick="restartGame()">Jugar de nuevo 🔄</button>
+</div>
+
+<script>
+const ALL_DISHES = [
+
+  // STARTERS
+  {section:"Starters", emoji:"🫛", type:"dish",
+   es:"Habas de Soja con Sal Marina", en:"Steamed edamame with sea salt",
+   pronounce:"STEEMD ed-ah-MAH-may with SEE solt",
+   hint1:"¿Cómo se cocinan? + nombre japonés + condimento",
+   hint2:"Steamed (al vapor) + edamame + with sea salt",
+   sauce:null, tip:"edamame = ed-ah-MAH-may. Tres sílabas: e·da·ma·me"},
+
+  {section:"Starters", emoji:"🌶️", type:"dish",
+   es:"Habas Picantes", en:"Spicy edamame",
+   pronounce:"SPY-see ed-ah-MAH-may",
+   hint1:"Solo dos palabras — sabor + ingrediente japonés",
+   hint2:"Picante = spicy · edamame = edamame",
+   sauce:null, tip:"spicy = SPY-see. Corto y directo."},
+
+  {section:"Starters", emoji:"🐟", type:"dish",
+   es:"Tataki de Atún con Aderezo de Mostaza y Manzana", en:"Tuna tataki with apple mustard dressing",
+   pronounce:"TOO-na ta-TAH-kee with AP-ul MUS-terd DRES-ing",
+   hint1:"Pescado + técnica japonesa + fruta + condimento + tipo de salsa",
+   hint2:"Atún = tuna · tataki = tataki · manzana = apple · mostaza = mustard · aderezo = dressing",
+   sauce:{en:"Apple mustard dressing — tangy, slightly sweet with green apple and mustard", es:"Aderezo ácido y dulce de manzana verde y mostaza"},
+   tip:"tataki = ta-TAH-kee. El acento va en el medio."},
+
+  {section:"Starters", emoji:"🥗", type:"dish",
+   es:"Sashimi de Pez Limón con Aderezo de Yuzu y Trufa", en:"Yellowtail sashimi salad with yuzu truffle dressing",
+   pronounce:"YEL-oh-tayl sa-SHEE-mee SAL-ad with YOO-zoo TRU-ful DRES-ing",
+   hint1:"Nombre del pescado en inglés + pescado crudo + ensalada + dos ingredientes exóticos + tipo de salsa",
+   hint2:"Pez limón = yellowtail · sashimi = sashimi · yuzu = yuzu · trufa = truffle · aderezo = dressing",
+   sauce:{en:"Yuzu truffle dressing — light Japanese citrus with earthy truffle", es:"Aderezo ligero de yuzu con trufa terrosa"},
+   tip:"sashimi = sa-SHEE-mee. Cinco sílabas: sa·shi·mi. No lo digas rápido."},
+
+  {section:"Starters", emoji:"🥬", type:"dish",
+   es:"Ensalada de Lechuga con Aderezo Wafu", en:"Iceberg salad with wafu dressing",
+   pronounce:"EYE-seberg SAL-ad with WAH-foo DRES-ing",
+   hint1:"Tipo de lechuga + ensalada + nombre japonés de la salsa",
+   hint2:"Lechuga iceberg = iceberg · wafu = Japanese-style dressing",
+   sauce:{en:"Wafu dressing — Japanese style, caramelised onion, apple and sesame", es:"Aderezo japonés de cebolla caramelizada, manzana y sésamo"},
+   tip:"wafu = WAH-foo. Suave y corto. No digas 'way-foo'."},
+
+  {section:"Starters", emoji:"🍣", type:"dish",
+   es:"Tartare de Pez Limón con Perlas de Jengibre y Crackers de Arroz y Alga", en:"Yellowtail tartare with ginger pearls spring onions and nori rice crackers",
+   pronounce:"YEL-oh-tayl TAR-tar with JIN-jer PURLZ SPRING UN-yunz and NOR-ee RYSS KRAK-erz",
+   hint1:"Nombre del pescado + preparación cruda + perlas + vegetal + alga + crujiente de arroz",
+   hint2:"Pez limón = yellowtail · tartare = tartare · perlas de jengibre = ginger pearls · cebolleta = spring onions · nori = nori · crackers de arroz = rice crackers",
+   sauce:null, tip:"nori = NOR-ee. El alga que envuelve el sushi. rice crackers = RYSS KRAK-erz."},
+
+  // MAIN KITCHEN
+  {section:"Main Kitchen", emoji:"🦐", type:"dish",
+   es:"Gambas en Panko con Mayonesa de Chili", en:"Panko prawns with chili mayo",
+   pronounce:"PAN-koh PRAWNZ with CHIL-ee MY-oh",
+   hint1:"Pan rallado japonés + marisco + salsa picante",
+   hint2:"Panko = panko · gambas = prawns · mayo de chili = chili mayo",
+   sauce:{en:"Chili mayo — creamy, mildly spicy with sweet chili and garlic", es:"Mayonesa cremosa con chili dulce y ajo"},
+   tip:"prawns — pronuncia el AW claramente: pr-AWW-nz."},
+
+  {section:"Main Kitchen", emoji:"🦑", type:"dish",
+   es:"Calamares Fritos con Mayonesa de Chili Verde", en:"Fried squid with green chili mayo",
+   pronounce:"FRYED SKWID with GREEN CHIL-ee MY-oh",
+   hint1:"Método de cocción + animal marino + color + salsa picante",
+   hint2:"Frito = fried · calamar = squid · verde = green · mayo = mayo",
+   sauce:{en:"Green chili mayo — yuzu kosho and green chili, citrusy and lightly spicy", es:"Mayonesa de yuzu kosho y chili verde — cítrica y ligeramente picante"},
+   tip:"squid = SKWID. La 'qu' suena 'kw'. Practica: sk-wid."},
+
+  {section:"Main Kitchen", emoji:"🥟", type:"dish",
+   es:"Gyoza de Cangrejo, Bacalao Negro y Gamba con Aderezo de Chili Asado", en:"Crab black cod and prawn dumpling with roasted chilli dressing",
+   pronounce:"KRAB BLAK KOD and PRAWN DUM-pling with ROH-sted CHIL-ee DRES-ing",
+   hint1:"Tres ingredientes del relleno + tipo de pasta + aderezo con método de cocción",
+   hint2:"Cangrejo = crab · bacalao negro = black cod · gamba = prawn · dumpling = empanadilla · asado = roasted · chili = chilli",
+   sauce:{en:"Roasted chilli dressing — deep, smoky and slightly spicy", es:"Aderezo de chili asado — profundo, ahumado y ligeramente picante"},
+   tip:"dumpling = DUM-pling. Dos sílabas: dum·pling. roasted = ROH-sted."},
+
+  // ROBATA SEAFOOD
+  {section:"Robata Seafood", emoji:"🐟", type:"dish",
+   es:"Salmón a la Robata con Sal Sancho", en:"Salmon teriyaki",
+   pronounce:"SAM-on TER-ee-yah-kee",
+   hint1:"Nombre del pescado + técnica de glaseado japonesa",
+   hint2:"Salmón = salmon · teriyaki = teriyaki",
+   sauce:{en:"Teriyaki glaze — sweet soy glaze, slightly smoky from the robata grill", es:"Glaseado teriyaki — soja dulce, ligeramente ahumado de la brasa"},
+   tip:"teriyaki = ter-ee-YAH-kee. El acento en YAH: te·ri·ya·ki."},
+
+  {section:"Robata Seafood", emoji:"🐠", type:"dish",
+   es:"Filete de Dorada con Cebolla Roja Encurtida", en:"Sea bream fillet with pickled red onions",
+   pronounce:"SEE breem FIL-ay with PIK-uld RED UN-yunz",
+   hint1:"Nombre del pescado en inglés + corte + vegetal encurtido + color",
+   hint2:"Dorada = sea bream · filete = fillet · encurtida = pickled · cebolla roja = red onions",
+   sauce:null, tip:"sea bream = SEE breem. fillet = FIL-ay (la 't' es muda)."},
+
+  {section:"Robata Seafood", emoji:"🐟", type:"dish",
+   es:"Bacalao Negro con Miso de Yuzu", en:"Black cod with yuzu miso",
+   pronounce:"BLAK KOD with YOO-zoo MEE-soh",
+   hint1:"Color + tipo de pescado + cítrico japonés + pasta fermentada",
+   hint2:"Negro = black · bacalao negro = black cod · yuzu = yuzu · miso = miso",
+   sauce:{en:"Yuzu miso — saikyo miso with yuzu, sweet and caramelised", es:"Miso saikyo con yuzu — dulce y caramelizado"},
+   tip:"miso = MEE-soh. No 'MY-so'. Dos sílabas: mee·so."},
+
+  {section:"Robata Seafood", emoji:"🐙", type:"dish",
+   es:"Pulpo a la Parrilla con Aioli", en:"Grilled octopus skewers with aioli",
+   pronounce:"GRILD OK-toh-pus SKYOO-erz with eye-OH-lee",
+   hint1:"Método de cocción + animal marino + formato + salsa de ajo",
+   hint2:"A la parrilla = grilled · pulpo = octopus · brochetas = skewers · aioli = aioli",
+   sauce:{en:"Garlic aioli — creamy garlic sauce with a touch of red yuzu", es:"Aioli cremoso de ajo con un toque de yuzu rojo"},
+   tip:"octopus = OK-toh-pus. Tres sílabas. aioli = eye-OH-lee."},
+
+  // ROBATA MEAT
+  {section:"Robata Meat", emoji:"🥩", type:"dish",
+   es:"Pincho de Ternera con Pimientos de Padrón", en:"Beef skewers with padron pepper",
+   pronounce:"BEEF SKYOO-erz with PAD-ron PEP-er",
+   hint1:"Tipo de carne + formato + vegetal español",
+   hint2:"Ternera = beef · pincho = skewers · pimientos de padrón = padron pepper",
+   sauce:null, tip:"skewers = SKYOO-erz. La 'ew' suena como 'yoo': sk-yoo-erz."},
+
+  {section:"Robata Meat", emoji:"🍗", type:"dish",
+   es:"Pollo Picantón con Chili, Limón y Ajo", en:"Baby chicken with chili lemon garlic",
+   pronounce:"BAY-bee CHIK-en with CHIL-ee LEM-on GAR-lik",
+   hint1:"Tamaño + animal + tres ingredientes de la salsa",
+   hint2:"Picantón = baby chicken · chili = chili · limón = lemon · ajo = garlic",
+   sauce:null, tip:"baby chicken — di 'BAY-bee'. Dos sílabas claras."},
+
+  {section:"Robata Meat", emoji:"🥩", type:"dish",
+   es:"Solomillo de Ternera con Salsa de Chili y Jengibre", en:"Spicy beef fillet with chili ginger sauce",
+   pronounce:"SPY-see BEEF FIL-ay with CHIL-ee JIN-jer SAWSS",
+   hint1:"Sabor + carne + corte + dos especias + tipo de preparación",
+   hint2:"Picante = spicy · ternera = beef · solomillo = fillet · chili = chili · jengibre = ginger · salsa = sauce",
+   sauce:null, tip:"⚠️ Preguntar temperatura: rare, medium rare, medium, well done"},
+
+  {section:"Robata Meat", emoji:"🐄", type:"dish",
+   es:"Wagyu Japonés con Setas Encurtidas y Ponzu de Wasabi", en:"Japanese wagyu beef with pickled mushrooms and wasabi ponzu",
+   pronounce:"jap-ah-NEEZ WAH-gyoo BEEF with PIK-uld MUSH-roomz and wah-SAH-bee PON-zoo",
+   hint1:"País + buey premium + carne + seta encurtida + salsa cítrica japonesa con wasabi",
+   hint2:"Japonés = Japanese · wagyu = wagyu · setas = mushrooms · encurtidas = pickled · ponzu = ponzu · wasabi = wasabi",
+   sauce:{en:"Wasabi ponzu — light citrus soy with wasabi, fresh and delicate", es:"Ponzu de wasabi — soja cítrica con wasabi, fresca y delicada"},
+   tip:"⚠️ Preguntar temperatura. wagyu = WAH-gyoo. Suave: wah·gyoo."},
+
+  {section:"Robata Meat", emoji:"🍖", type:"dish",
+   es:"Chuletas de Cordero con Salsa Coreana y Pepino con Sésamo", en:"Korean spiced lamb cutlets with cucumber and sesame dressing",
+   pronounce:"koh-REE-an SPYSD LAM KUT-letz with KYOO-kum-ber and SES-ah-mee DRES-ing",
+   hint1:"País + sabor + animal joven + corte + dos ingredientes del aderezo",
+   hint2:"Coreana = Korean · cordero = lamb · chuletas = cutlets · pepino = cucumber · sésamo = sesame",
+   sauce:{en:"Cucumber sesame dressing — light, refreshing with sesame and a touch of vinegar", es:"Aderezo ligero de pepino y sésamo con vinagre"},
+   tip:"lamb = LAM. La 'b' es muda. cutlets = KUT-letz."},
+
+  {section:"Robata Meat", emoji:"🍖", type:"dish",
+   es:"Costillar Ibérico con Anacardos", en:"Baby back ribs with cashew nuts",
+   pronounce:"BAY-bee BAK RIBZ with KASH-yoo NUTZ",
+   hint1:"Adjetivo de tamaño + parte + tipo de carne + fruto seco",
+   hint2:"Costillar = baby back ribs · ibérico = Iberian pork · anacardos = cashew nuts",
+   sauce:null, tip:"cashew = KASH-yoo. anacardos = cashew nuts."},
+
+  {section:"Robata Meat", emoji:"🍗", type:"dish",
+   es:"Alitas de Pollo con Yuzu Kosho y Miel", en:"Chicken wings with yuzu kosho honey",
+   pronounce:"CHIK-en WINGZ with YOO-zoo KOH-shoh HUN-ee",
+   hint1:"Parte del animal + tipo de ave + dos ingredientes del glaseado",
+   hint2:"Alitas = wings · pollo = chicken · yuzu kosho = yuzu kosho · miel = honey",
+   sauce:null, tip:"wings = WINGZ. yuzu kosho = YOO-zoo KOH-shoh."},
+
+  // ROBATA VEG
+  {section:"Robata Veg", emoji:"🫑", type:"dish",
+   es:"Pimientos de Padrón con Sal de Yuzu", en:"Grilled padron peppers with yuzu salt",
+   pronounce:"GRILD PAD-ron PEP-erz with YOO-zoo SOLT",
+   hint1:"Método de cocción + vegetal español + condimento japonés",
+   hint2:"A la parrilla = grilled · pimientos de padrón = padron peppers · sal de yuzu = yuzu salt",
+   sauce:null, tip:"grilled = GRILD. padron = PAD-ron."},
+
+  {section:"Robata Veg", emoji:"🥦", type:"dish",
+   es:"Brócoli con Salsa Wafu y Trufa", en:"Tenderstem broccoli with wafu truffle sauce",
+   pronounce:"TEN-der-stem BROK-oh-lee with WAH-foo TRU-ful SAWSS",
+   hint1:"Variedad de brócoli + nombre japonés + hongo raro + tipo de preparación",
+   hint2:"Brócoli tierno = tenderstem broccoli · wafu = wafu · trufa = truffle · salsa = sauce",
+   sauce:{en:"Wafu truffle sauce — Japanese style with truffle oil, savoury and aromatic", es:"Salsa wafu con aceite de trufa — sabrosa y aromática"},
+   tip:"tenderstem = TEN-der-stem. 'Tender' como 'tierno'."},
+
+  {section:"Robata Veg", emoji:"🍠", type:"dish",
+   es:"Boniato a la Brasa con Miso Rojo y Mantequilla de Yuzu", en:"Robata grilled sweet potato with red miso and yuzu butter",
+   pronounce:"roh-BAH-ta GRILD SWEET poh-TAY-toh with RED MEE-soh and YOO-zoo BUT-er",
+   hint1:"Método de cocción + tubérculo dulce + tipo de miso + grasa con cítrico",
+   hint2:"Boniato = sweet potato · a la brasa = robata grilled · miso rojo = red miso · mantequilla de yuzu = yuzu butter",
+   sauce:{en:"Red miso and yuzu butter — rich red miso with yuzu citrus butter, deep and aromatic", es:"Miso rojo y mantequilla de yuzu — rico y aromático"},
+   tip:"red miso = RED MEE-soh. Más intenso que el miso blanco. yuzu butter = YOO-zoo BUT-er."},
+
+  {section:"Robata Veg", emoji:"🍆", type:"dish",
+   es:"Berenjena a la Brasa con Jengibre y Shichimi", en:"Grilled eggplant with ginger and shichimi",
+   pronounce:"GRILD EG-plant with JIN-jer and shee-CHEE-mee",
+   hint1:"Método de cocción + vegetal morado + dos especias/condimentos",
+   hint2:"Berenjena = eggplant · a la brasa = grilled · jengibre = ginger · shichimi = shichimi",
+   sauce:null, tip:"eggplant = EG-plant. shichimi = shee-CHEE-mee."},
+
+  {section:"Robata Veg", emoji:"🍄", type:"dish",
+   es:"Setas Portobello a la Parrilla con Mantequilla de Chili y Ajo", en:"Grilled portobello mushrooms with chilli and garlic butter",
+   pronounce:"GRILD por-toh-BEL-oh MUSH-roomz with CHIL-ee and GAR-lik BUT-er",
+   hint1:"Método de cocción + tipo de seta + dos ingredientes de la mantequilla",
+   hint2:"Portobello = portobello · setas = mushrooms · chili = chilli · ajo = garlic · mantequilla = butter",
+   sauce:{en:"Chilli and garlic butter — smoked butter with chilli sauce, miso barley and kaffir lime", es:"Mantequilla de chili y ajo — mantequilla ahumada con salsa de chili, cebada miso y lima kaffir"},
+   tip:"portobello = por-toh-BEL-oh. El acento en BEL. mushrooms = MUSH-roomz."},
+
+  // SUSHI & MAKI
+  {section:"Sushi & Maki", emoji:"🍱", type:"dish",
+   es:"Maki de Salmón y Aguacate con Mayonesa de Yuzu", en:"Salmon and avocado maki with yuzu mayo",
+   pronounce:"SAM-on and av-oh-KAH-doh MAH-kee with YOO-zoo MY-oh",
+   hint1:"Dos ingredientes + tipo de sushi + cítrico japonés + salsa",
+   hint2:"Salmón = salmon · aguacate = avocado · maki = maki · yuzu = yuzu · mayonesa = mayo",
+   sauce:{en:"Yuzu mayo — light citrus mayo with yuzu, fresh and creamy", es:"Mayonesa de yuzu — ligera y cremosa"},
+   tip:"avocado = av-oh-KAH-doh. El acento en KAH."},
+
+  {section:"Sushi & Maki", emoji:"🍱", type:"dish",
+   es:"Maki de Cangrejo y Aguacate con Wasabi Tobiko", en:"Crab and avocado maki with wasabi tobiko",
+   pronounce:"KRAB and av-oh-KAH-doh MAH-kee with wah-SAH-bee TOH-bee-koh",
+   hint1:"Marisco + fruta cremosa + tipo de sushi + condimento japonés + huevas",
+   hint2:"Cangrejo = crab · aguacate = avocado · maki = maki · wasabi = wasabi · tobiko = tobiko",
+   sauce:null, tip:"tobiko = TOH-bee-koh. Huevas de pez volador."},
+
+  {section:"Sushi & Maki", emoji:"🍱", type:"dish",
+   es:"Maki de Atún Picante", en:"Spicy tuna maki",
+   pronounce:"SPY-see TOO-na MAH-kee",
+   hint1:"Sabor + pescado + tipo de sushi",
+   hint2:"Picante = spicy · atún = tuna · maki = maki",
+   sauce:null, tip:"spicy tuna = SPY-see TOO-na. Tres palabras claras."},
+
+  {section:"Sushi & Maki", emoji:"🍱", type:"dish",
+   es:"Maki de Gamba Crujiente con Aguacate y Mayonesa de Wasabi", en:"Crispy prawn maki with avocado and wasabi mayo",
+   pronounce:"KRIS-pee PRAWN MAH-kee with av-oh-KAH-doh and wah-SAH-bee MY-oh",
+   hint1:"Textura + marisco + tipo de sushi + fruta cremosa + salsa japonesa",
+   hint2:"Crujiente = crispy · gamba = prawn · maki = maki · aguacate = avocado · wasabi mayo = wasabi mayo",
+   sauce:{en:"Wasabi mayo — creamy mayo with wasabi, fresh with a gentle heat", es:"Mayonesa de wasabi — cremosa con calor suave"},
+   tip:"crispy = KRIS-pee. wasabi mayo = wah-SAH-bee MY-oh."},
+
+  // DESSERTS
+  {section:"Desserts", emoji:"🧁", type:"dish",
+   es:"Tarta de Queso de Guayaba con Crumble de Sésamo Negro y Galleta de Mango", en:"Guava cheesecake with black sesame crumble and mango biscuit",
+   pronounce:"GWAH-vah CHEEZ-kayk with BLAK SES-ah-mee KRUM-bul and MAN-goh BIS-kit",
+   hint1:"Fruta exótica + tarta de queso + color + semilla + textura + fruta tropical + galleta",
+   hint2:"Guayaba = guava · cheesecake = cheesecake · negro = black · sésamo = sesame · crumble = crumble · mango = mango · galleta = biscuit",
+   sauce:null, tip:"guava = GWAH-vah. biscuit = BIS-kit (la 'u' es muda). crumble = KRUM-bul."},
+
+  {section:"Desserts", emoji:"🥥", type:"dish",
+   es:"Parfait de Coco con Maracuyá, Lichi y Frambuesas", en:"Coconut parfait with passion fruit lychee and raspberries",
+   pronounce:"KOH-koh-nut PAR-fay with PASH-on froot LY-chee and RAZ-ber-eez",
+   hint1:"Fruta tropical + postre helado francés + tres frutas",
+   hint2:"Coco = coconut · parfait = parfait · maracuyá = passion fruit · lichi = lychee · frambuesas = raspberries",
+   sauce:null, tip:"parfait = PAR-fay. Francés — la 't' final es muda."},
+
+  {section:"Desserts", emoji:"🍮", type:"dish",
+   es:"Crème Brûlée de Miso con Higos y Helado de Pistacho", en:"Miso creme brulee with figs and pistachio ice cream",
+   pronounce:"MEE-soh krem broo-LAY with FIGZ and pis-TAH-shee-oh ICE kreem",
+   hint1:"Pasta japonesa + postre francés + fruta mediterránea + helado de fruto seco",
+   hint2:"Miso = miso · crème brûlée = creme brulee · higos = figs · pistacho = pistachio · helado = ice cream",
+   sauce:null, tip:"brulee = broo-LAY. pistachio = pis-TAH-shee-oh. Cuatro sílabas: pis·ta·chi·o."},
+
+  {section:"Desserts", emoji:"🍫", type:"dish",
+   es:"Pudding de Chocolate y Té Verde con Helado de Pera", en:"Chocolate and green tea pudding with pear ice cream",
+   pronounce:"CHOK-oh-let and GREEN TEE PUD-ing with PAIR ICE kreem",
+   hint1:"Dos sabores + tipo de postre + fruta + helado",
+   hint2:"Chocolate = chocolate · té verde = green tea · pudding = pudding · pera = pear · helado = ice cream",
+   sauce:null, tip:"pudding = PUD-ing. green tea = GREEN TEE. pear = PAIR (como 'par')."},
+
+  {section:"Desserts", emoji:"🍓", type:"dish",
+   es:"Selección de Frutas Exóticas", en:"Selection of exotic fruits",
+   pronounce:"sel-EK-shon of ig-ZOT-ik FROOTS",
+   hint1:"Palabra para 'variedad' + tipo de alimentos + adjetivo tropical",
+   hint2:"Selección = selection · frutas = fruits · exóticas = exotic",
+   sauce:null, tip:"exotic = ig-ZOT-ik. El acento en ZOT. selection = sel-EK-shon."},
+
+  // FISHES
+  {section:"Fishes", emoji:"🐟", type:"fish",
+   es:"Salmón", en:"Salmon", japanese:"Sake",
+   pronounce_en:"SAM-on", pronounce_jp:"SAH-keh",
+   hint1:"El pescado más común en el menú — color naranja",
+   hint2:"Salmon en inglés · sake en japonés (¡no confundir con el vino de arroz!)",
+   tip:"sake (pescado) = SAH-keh. sake (bebida) = SAH-keh también — pero el contexto es diferente."},
+
+  {section:"Fishes", emoji:"🐟", type:"fish",
+   es:"Atún Rojo", en:"Tuna", japanese:"Maguro",
+   pronounce_en:"TOO-na", pronounce_jp:"mah-GOO-roh",
+   hint1:"Variedad de atún — la parte más magra, color rojo intenso",
+   hint2:"Atún rojo = tuna en inglés · maguro = nombre japonés",
+   tip:"maguro = mah-GOO-roh. Es el atún básico — el más común en sushi."},
+
+  {section:"Fishes", emoji:"🐟", type:"fish",
+   es:"Atún Medio Graso", en:"Semi Fatty Tuna", japanese:"Chu Toro",
+   pronounce_en:"SEM-ee FAT-ee TOO-na", pronounce_jp:"CHOO TOH-roh",
+   hint1:"Variedad de atún — entre maguro y o toro, parte media del vientre",
+   hint2:"Atún medio graso = semi fatty tuna en inglés · chu toro = nombre japonés",
+   tip:"Chu Toro = CHOO TOH-roh. 'Chu' significa medio. Más graso que maguro, menos que o toro."},
+
+  {section:"Fishes", emoji:"🐟", type:"fish",
+   es:"Atún Muy Graso", en:"Fatty Tuna", japanese:"O Toro",
+   pronounce_en:"FAT-ee TOO-na", pronounce_jp:"OH TOH-roh",
+   hint1:"La variedad más premium del atún — parte del vientre, muy grasa y suave",
+   hint2:"Atún muy graso = fatty tuna en inglés · o toro = nombre japonés",
+   tip:"O Toro = OH TOH-roh. El más caro del menú. 'O' significa 'gran' en japonés."},
+
+  {section:"Fishes", emoji:"🐡", type:"fish",
+   es:"Pez Limón (Hamachi)", en:"Yellowtail", japanese:"Hamachi",
+   pronounce_en:"YEL-oh-tayl", pronounce_jp:"hah-MAH-chee",
+   hint1:"Pescado de color amarillento — nombre japonés muy usado en el menú",
+   hint2:"Pez limón = yellowtail en inglés · hamachi = nombre japonés",
+   tip:"hamachi = hah-MAH-chee. yellowtail = YEL-oh-tayl. Aparece en el tartare y en el sashimi salad."},
+
+  {section:"Fishes", emoji:"🐠", type:"fish",
+   es:"Dorada", en:"Sea Bream", japanese:"Tai",
+   pronounce_en:"SEE breem", pronounce_jp:"TIE",
+   hint1:"Pescado blanco muy apreciado — aparece en el robata",
+   hint2:"Dorada = sea bream en inglés · tai = nombre japonés",
+   tip:"sea bream = SEE breem. tai = TIE (como 'corbata' en inglés). Muy corto y fácil."},
+
+  {section:"Fishes", emoji:"🐟", type:"fish",
+   es:"Bacalao Negro", en:"Black Cod", japanese:"Gindara",
+   pronounce_en:"BLAK KOD", pronounce_jp:"gin-DAH-rah",
+   hint1:"Pescado muy graso y suave — uno de los platos estrella de ROKA",
+   hint2:"Bacalao negro = black cod en inglés · gindara = nombre japonés",
+   tip:"gindara = gin-DAH-rah. No es bacalao real — es sablefish. black cod = BLAK KOD."},
+
+  {section:"Fishes", emoji:"🦐", type:"fish",
+   es:"Gamba Dulce", en:"Sweet Shrimp", japanese:"Ama Ebi",
+   pronounce_en:"SWEET SHRIMP", pronounce_jp:"AH-mah EH-bee",
+   hint1:"Marisco pequeño y dulce — servido crudo en sushi",
+   hint2:"Gamba dulce = sweet shrimp en inglés · ama ebi = nombre japonés (ama = dulce)",
+   tip:"ama ebi = AH-mah EH-bee. 'Ama' significa dulce en japonés. sweet shrimp = SWEET SHRIMP."}
+];
+
+const SECTIONS = [...new Set(ALL_DISHES.map(d => d.section))];
+let activeSections = [...SECTIONS];
+let deck = [], current = 0, score = 0, hintsUsed = 0, cardComplete = false;
+let revealedWords = [], revealedEn = false, revealedJp = false;
+let weakDishes = {};
+
+const filterRow = document.getElementById('filter-row');
+SECTIONS.forEach(s => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn active';
+  btn.textContent = s;
+  btn.dataset.section = s;
+  btn.onclick = () => {
+    btn.classList.toggle('active');
+    activeSections = [...document.querySelectorAll('.filter-btn.active')].map(b => b.dataset.section);
+  };
+  filterRow.appendChild(btn);
+});
+
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+
+function goToMenu(){
+  document.getElementById('game-header').style.display='none';
+  document.getElementById('card-area').style.display='none';
+  document.getElementById('complete').classList.remove('visible');
+  document.getElementById('splash').style.display='flex';
+}
+
+function startGame(){
+  const base = shuffle(ALL_DISHES.filter(d => activeSections.includes(d.section)));
+  if(!base.length){ alert('¡Selecciona al menos una sección!'); return; }
+  deck = base.map((d,i) => ({...d, _id:i, _repeat:false}));
+  weakDishes = {}; current = 0; score = 0;
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('game-header').style.display = 'block';
+  document.getElementById('card-area').style.display = 'block';
+  renderCard();
+}
+
+function restartGame(){
+  document.getElementById('complete').classList.remove('visible');
+  document.getElementById('splash').style.display = 'flex';
+}
+
+function norm(s){
+  return s.toLowerCase()
+    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
+    .replace(/[óòô]/g,'o').replace(/[úùû]/g,'u').replace(/ü/g,'u').replace(/ñ/g,'n')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+function renderCard(){
+  if(current >= deck.length){ showComplete(); return; }
+  const d = deck[current];
+  hintsUsed = 0; cardComplete = false;
+  revealedEn = false; revealedJp = false;
+
+  const repeatBadge = d._repeat ? ' 🔁' : '';
+  document.getElementById('progress-label').textContent = `Plato ${current+1} de ${deck.length}${repeatBadge}`;
+  document.getElementById('score-badge').textContent = `⭐ ${score}`;
+  document.getElementById('progress-fill').style.width = ((current/deck.length)*100)+'%';
+
+  if(d.type === 'fish'){
+    renderFishCard(d);
+  } else {
+    renderDishCard(d);
+  }
+  setTimeout(()=>{ const i=document.getElementById('guess-input'); if(i) i.focus(); },150);
+}
+
+function renderDishCard(d){
+  const words = d.en.split(' ');
+  revealedWords = new Array(words.length).fill(false);
+
+  const wordHTML = words.map((w,i) => {
+    const clean = w.replace(/[^a-zA-Z0-9]/g,'');
+    return clean.length >= 1
+      ? `<span class="word-block"><span class="word-text">${w}</span><span class="word-cover" id="wc-${i}"></span></span>`
+      : `<span class="word-punct">${w}</span>`;
+  }).join(' ');
+
+  document.getElementById('card-area').innerHTML = `
+    <div class="card">
+      <div class="card-emoji">${d.emoji}</div>
+      <div class="card-body">
+        <div class="section-tag">${d.section}</div>
+        <div class="spanish-name">${d.es}</div>
+        <div class="pronounce-prompt" onclick="toggleBox('pron-box')">
+          <div class="pronounce-icon">🔊</div>
+          <div class="pronounce-text">
+            <strong>¡Dilo en voz alta primero!</strong>
+            Toca para ver pronunciación
+          </div>
+        </div>
+        <div class="info-box" id="pron-box"><p>🎤 <strong>${d.pronounce}</strong></p></div>
+        <div class="en-label">Escribe el anuncio en inglés</div>
+        <div class="word-row">${wordHTML}</div>
+        <div class="input-area">
+          <input class="guess-input" id="guess-input" type="text" placeholder="Escribe aquí..."
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            onkeydown="if(event.key==='Enter')checkGuess()"/>
+          <button class="check-btn" onclick="checkGuess()">✓</button>
+        </div>
+        <div class="status-line" id="status-line">💡 2 pistas disponibles</div>
+        <div class="hint-row">
+          <button class="hint-btn" id="h1-btn" onclick="showHint(1)">Pista 1</button>
+          <button class="hint-btn" id="h2-btn" onclick="showHint(2)">Pista 2</button>
+          <button class="reveal-btn" onclick="revealAll()">Ver todo</button>
+        </div>
+        <div class="info-box hint" id="hint1-box"><p>💡 <strong>Pista 1:</strong> ${d.hint1}</p></div>
+        <div class="info-box hint" id="hint2-box"><p>💡 <strong>Pista 2:</strong> ${d.hint2}</p></div>
+        ${d.sauce ? `
+          <div class="info-box sauce" id="sauce-box">
+            <div class="sauce-title">🥢 Si te preguntan por la salsa</div>
+            <p>🇬🇧 ${d.sauce.en}</p>
+            <p style="margin-top:6px;color:#888">🇪🇸 ${d.sauce.es}</p>
+          </div>` : ''}
+        <div class="info-box tip" id="tip-box">
+          <div class="tip-title">🧠 Truco para recordarlo</div>
+          <p>${d.tip}</p>
+        </div>
+        <button class="next-btn" id="next-btn" onclick="nextCard()">Siguiente →</button>
+      </div>
+    </div>`;
+}
+
+function renderFishCard(d){
+  const enWords = d.en.split(' ');
+  const jpWords = d.japanese.split(' ');
+  revealedWords = {
+    en: new Array(enWords.length).fill(false),
+    jp: new Array(jpWords.length).fill(false)
+  };
+
+  const enWordHTML = enWords.map((w,i) =>
+    `<span class="word-block"><span class="word-text">${w}</span><span class="word-cover" id="en-wc-${i}"></span></span>`
+  ).join(' ');
+
+  const jpWordHTML = jpWords.map((w,i) =>
+    `<span class="word-block"><span class="word-text">${w}</span><span class="word-cover" id="jp-wc-${i}"></span></span>`
+  ).join(' ');
+
+  document.getElementById('card-area').innerHTML = `
+    <div class="card">
+      <div class="card-emoji">${d.emoji}</div>
+      <div class="card-body">
+        <div class="fish-tag">🐟 Fishes</div>
+        <div class="spanish-name">${d.es}</div>
+        <div class="pronounce-prompt" onclick="toggleBox('pron-box')">
+          <div class="pronounce-icon">🔊</div>
+          <div class="pronounce-text">
+            <strong>¡Dilo en inglés y japonés en voz alta!</strong>
+            Toca para ver pronunciación
+          </div>
+        </div>
+        <div class="info-box" id="pron-box">
+          <p>🇬🇧 <strong>${d.pronounce_en}</strong></p>
+          <p style="margin-top:6px">🇯🇵 <strong>${d.pronounce_jp}</strong></p>
+        </div>
+        <div class="fish-answers">
+          <div class="fish-answer-row">
+            <div class="fish-answer-label">🇬🇧 Nombre en inglés</div>
+            <div class="fish-word-row">${enWordHTML}</div>
+          </div>
+          <div class="fish-answer-row">
+            <div class="fish-answer-label">🇯🇵 Nombre en japonés</div>
+            <div class="fish-word-row">${jpWordHTML}</div>
+          </div>
+        </div>
+        <div class="input-area">
+          <input class="guess-input" id="guess-input" type="text" placeholder="Inglés o japonés..."
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            onkeydown="if(event.key==='Enter')checkFishGuess()"/>
+          <button class="check-btn" onclick="checkFishGuess()">✓</button>
+        </div>
+        <div class="status-line" id="status-line">💡 Escribe el nombre en inglés y japonés</div>
+        <div class="hint-row">
+          <button class="hint-btn" id="h1-btn" onclick="showHint(1)">Pista 1</button>
+          <button class="hint-btn" id="h2-btn" onclick="showHint(2)">Pista 2</button>
+          <button class="reveal-btn" onclick="revealAllFish()">Ver todo</button>
+        </div>
+        <div class="info-box hint" id="hint1-box"><p>💡 <strong>Pista 1:</strong> ${d.hint1}</p></div>
+        <div class="info-box hint" id="hint2-box"><p>💡 <strong>Pista 2:</strong> ${d.hint2}</p></div>
+        <div class="info-box tip" id="tip-box">
+          <div class="tip-title">🧠 Truco para recordarlo</div>
+          <p>${d.tip}</p>
+        </div>
+        <button class="next-btn" id="next-btn" onclick="nextCard()">Siguiente →</button>
+      </div>
+    </div>`;
+}
+
+function toggleBox(id){
+  document.getElementById(id)?.classList.toggle('visible');
+}
+
+function checkGuess(){
+  const d = deck[current];
+  const input = document.getElementById('guess-input');
+  const typed = input.value.trim();
+  if(!typed) return;
+  const words = d.en.split(' ');
+  const typedWords = typed.toLowerCase().split(/\s+/);
+  let newReveal = false;
+  typedWords.forEach(tw => {
+    words.forEach((w,i) => {
+      if(revealedWords[i]) return;
+      const clean = norm(w);
+      if(clean.length >= 1 && norm(tw) === clean){
+        revealedWords[i] = true; newReveal = true;
+        document.getElementById('wc-'+i)?.classList.add('revealed');
+      }
+    });
+  });
+  const indices = words.map((w,i)=>norm(w).length>=1?i:null).filter(x=>x!==null);
+  const allDone = indices.every(i=>revealedWords[i]);
+  if(allDone && !cardComplete){
+    cardComplete = true;
+    const pts = hintsUsed===0?3:hintsUsed===1?2:1;
+    score += pts;
+    document.getElementById('score-badge').textContent = `⭐ ${score}`;
+    document.getElementById('status-line').textContent = `🎉 +${pts} punto${pts>1?'s':''}! ${hintsUsed===0?'¡Perfecto!':'¡Bien hecho!'}`;
+    input.classList.add('right'); input.disabled = true;
+    document.getElementById('next-btn').classList.add('visible');
+    if(d.sauce) document.getElementById('sauce-box')?.classList.add('visible');
+    document.getElementById('tip-box')?.classList.add('visible');
+    if(hintsUsed>0 && !d._repeat) weakDishes[d._id]=(weakDishes[d._id]||0)+1;
+  } else if(newReveal){
+    input.classList.remove('wrong'); input.value='';
+    const remaining = indices.filter(i=>!revealedWords[i]).length;
+    document.getElementById('status-line').textContent = `✅ ¡Bien! Faltan ${remaining} palabra${remaining!==1?'s':''}`;
+  } else {
+    input.classList.add('wrong');
+    setTimeout(()=>input.classList.remove('wrong'),350);
+  }
+}
+
+function checkFishGuess(){
+  const d = deck[current];
+  const input = document.getElementById('guess-input');
+  const typed = input.value.trim().toLowerCase();
+  if(!typed) return;
+  const typedWords = typed.split(/\s+/);
+  let newReveal = false;
+
+  // Check English
+  d.en.split(' ').forEach((w,i) => {
+    if(revealedWords.en[i]) return;
+    if(typedWords.some(tw => norm(tw) === norm(w))){
+      revealedWords.en[i] = true; newReveal = true;
+      document.getElementById('en-wc-'+i)?.classList.add('revealed');
+    }
+  });
+  // Check Japanese
+  d.japanese.split(' ').forEach((w,i) => {
+    if(revealedWords.jp[i]) return;
+    if(typedWords.some(tw => norm(tw) === norm(w))){
+      revealedWords.jp[i] = true; newReveal = true;
+      document.getElementById('jp-wc-'+i)?.classList.add('revealed');
+    }
+  });
+
+  const enDone = revealedWords.en.every(Boolean);
+  const jpDone = revealedWords.jp.every(Boolean);
+  const allDone = enDone && jpDone;
+
+  if(allDone && !cardComplete){
+    cardComplete = true;
+    const pts = hintsUsed===0?3:hintsUsed===1?2:1;
+    score += pts;
+    document.getElementById('score-badge').textContent = `⭐ ${score}`;
+    document.getElementById('status-line').textContent = `🎉 +${pts} punto${pts>1?'s':''}! ¡Perfecto!`;
+    input.classList.add('right'); input.disabled = true;
+    document.getElementById('next-btn').classList.add('visible');
+    document.getElementById('tip-box')?.classList.add('visible');
+    if(hintsUsed>0 && !d._repeat) weakDishes[d._id]=(weakDishes[d._id]||0)+1;
+  } else if(newReveal){
+    input.classList.remove('wrong'); input.value='';
+    const remaining = (!enDone?1:0) + (!jpDone?1:0);
+    document.getElementById('status-line').textContent = `✅ ¡Bien! Falta ${remaining===1?'el otro nombre':'completar'}`;
+  } else {
+    input.classList.add('wrong');
+    setTimeout(()=>input.classList.remove('wrong'),350);
+  }
+}
+
+function showHint(n){
+  if(hintsUsed>=n) return;
+  hintsUsed=n;
+  document.getElementById(`hint${n}-box`)?.classList.add('visible');
+  document.getElementById(`h${n}-btn`)?.classList.add('used');
+  document.getElementById(`h${n}-btn`).disabled=true;
+  const rem=2-hintsUsed;
+  document.getElementById('status-line').textContent=rem>0?`💡 Queda ${rem} pista${rem>1?'s':''}`:'💡 Sin más pistas';
+}
+
+function revealAll(){
+  const d = deck[current];
+  d.en.split(' ').forEach((_,i)=>{
+    revealedWords[i]=true;
+    document.getElementById('wc-'+i)?.classList.add('revealed');
+  });
+  cardComplete=true;
+  if(!d._repeat) weakDishes[d._id]=(weakDishes[d._id]||0)+2;
+  document.getElementById('status-line').textContent='👀 Revelado — ¡di la frase en voz alta!';
+  document.getElementById('guess-input').disabled=true;
+  document.getElementById('next-btn').classList.add('visible');
+  if(d.sauce) document.getElementById('sauce-box')?.classList.add('visible');
+  document.getElementById('tip-box')?.classList.add('visible');
+}
+
+function revealAllFish(){
+  const d = deck[current];
+  d.en.split(' ').forEach((_,i)=>{ revealedWords.en[i]=true; document.getElementById('en-wc-'+i)?.classList.add('revealed'); });
+  d.japanese.split(' ').forEach((_,i)=>{ revealedWords.jp[i]=true; document.getElementById('jp-wc-'+i)?.classList.add('revealed'); });
+  cardComplete=true;
+  if(!d._repeat) weakDishes[d._id]=(weakDishes[d._id]||0)+2;
+  document.getElementById('status-line').textContent='👀 Revelado — ¡di ambos nombres en voz alta!';
+  document.getElementById('guess-input').disabled=true;
+  document.getElementById('next-btn').classList.add('visible');
+  document.getElementById('tip-box')?.classList.add('visible');
+}
+
+function nextCard(){
+  current++;
+  if(current>=deck.length){
+    const repeats=[];
+    Object.entries(weakDishes).forEach(([id,count])=>{
+      const original=deck.find(d=>d._id===parseInt(id)&&!d._repeat);
+      if(original){ const times=Math.min(count,2); for(let i=0;i<times;i++) repeats.push({...original,_repeat:true}); }
+    });
+    if(repeats.length>0){ deck=[...deck,...shuffle(repeats)]; weakDishes={}; }
+  }
+  renderCard();
+}
+
+function showComplete(){
+  document.getElementById('game-header').style.display='none';
+  document.getElementById('card-area').style.display='none';
+  document.getElementById('complete').classList.add('visible');
+  const max=deck.length*3; const pct=score/max;
+  document.getElementById('stars').textContent=pct>=0.8?'⭐⭐⭐':pct>=0.5?'⭐⭐':'⭐';
+  document.getElementById('complete-msg').textContent=`Puntuación: ${score} / ${max} — ${pct>=0.8?'¡Increíble! Estás listo para el servicio 🔥':pct>=0.5?'¡Bien! Sigue practicando 💪':'Sigue adelante — cada vez mejor 😊'}`;
+}
+</script>
+</body>
+</html>
