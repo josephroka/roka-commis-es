@@ -178,11 +178,18 @@ const ALL_DISHES = [
    tip:"spinach = SPIN-itch. baby spinach = BAY-bee SPIN-itch."},
 
   {section:"Starters", emoji:"🍣", type:"dish",
-   es:"Tartare de Pez Limón con Perlas de Jengibre y Crackers de Arroz y Alga", en:"Yellowtail tartare with ginger pearls spring onions and nori rice crackers",
-   pronounce:"YEL-oh-tayl TAR-tar with JIN-jer PURLZ SPRING UN-yunz and NOR-ee RYSS KRAK-erz",
-   hint1:"Nombre del pescado + preparación cruda + perlas + vegetal + alga + crujiente de arroz",
-   hint2:"Pez limón = yellowtail · tartare = tartare · perlas de jengibre = ginger pearls · cebolleta = spring onions · nori = nori · crackers de arroz = rice crackers",
+   es:"Tartare de Pez Limón con Perlas de Jengibre y Crackers de Arroz y Alga", en:"Yellowtail tartare with ginger pearls and nori rice crackers",
+   pronounce:"YEL-oh-tayl TAR-tar with JIN-jer PURLZ and NOR-ee RYSS KRAK-erz",
+   hint1:"Nombre del pescado + preparación cruda + perlas + alga + crujiente de arroz",
+   hint2:"Pez limón = yellowtail · tartare = tartare · perlas de jengibre = ginger pearls · nori = nori · crackers de arroz = rice crackers",
    sauce:null, tip:"nori = NOR-ee. El alga que envuelve el sushi. rice crackers = RYSS KRAK-erz."},
+
+  {section:"Starters", emoji:"🍆", type:"dish",
+   es:"Ensalada Tibia de Berenjena con Miso de Sésamo y Bonito", en:"Warm eggplant salad with sesame miso and bonito flakes",
+   pronounce:"WORM EG-plant SAL-ad with SES-ah-mee MEE-soh and BOH-nee-toh FLAYKZ",
+   hint1:"Temperatura + vegetal morado + ensalada + pasta japonesa + pescado en copos",
+   hint2:"Tibia = warm · berenjena = eggplant · miso de sésamo = sesame miso · bonito = bonito flakes",
+   sauce:null, tip:"bonito flakes = BOH-nee-toh FLAYKZ. Son copos de pescado seco. warm = WORM."},
 
   // MAIN KITCHEN
   {section:"Main Kitchen", emoji:"🦐", type:"dish",
@@ -243,11 +250,11 @@ const ALL_DISHES = [
 
   // ROBATA MEAT
   {section:"Robata Meat", emoji:"🥩", type:"dish",
-   es:"Pincho de Ternera con Pimientos de Padrón", en:"Beef skewers with padron pepper",
-   pronounce:"BEEF SKYOO-erz with PAD-ron PEP-er",
-   hint1:"Tipo de carne + formato + vegetal español",
-   hint2:"Ternera = beef · pincho = skewers · pimientos de padrón = padron pepper",
-   sauce:null, tip:"skewers = SKYOO-erz. La 'ew' suena como 'yoo': sk-yoo-erz."},
+   es:"Pincho de Ternera", en:"Beef skewers",
+   pronounce:"BEEF SKYOO-erz",
+   hint1:"Tipo de carne + formato",
+   hint2:"Ternera = beef · pincho = skewers",
+   sauce:null, tip:"skewers = SKYOO-erz. pincho = skewer."},
 
   {section:"Robata Meat", emoji:"🍗", type:"dish",
    es:"Pollo Picantón con Chili, Limón y Ajo", en:"Baby chicken with chili lemon garlic",
@@ -264,10 +271,10 @@ const ALL_DISHES = [
    sauce:null, tip:"⚠️ Preguntar temperatura: rare, medium rare, medium, well done"},
 
   {section:"Robata Meat", emoji:"🐄", type:"dish",
-   es:"Wagyu Japonés con Setas Encurtidas y Ponzu de Wasabi", en:"Japanese wagyu beef with pickled mushrooms and wasabi ponzu",
+   es:"Wagyu Japonesa con Setas Encurtidas y Salsa Ponzu con Wasabi", en:"Japanese wagyu beef with pickled mushrooms and wasabi ponzu",
    pronounce:"jap-ah-NEEZ WAH-gyoo BEEF with PIK-uld MUSH-roomz and wah-SAH-bee PON-zoo",
-   hint1:"País + buey premium + carne + seta encurtida + salsa cítrica japonesa con wasabi",
-   hint2:"Japonés = Japanese · wagyu = wagyu · setas = mushrooms · encurtidas = pickled · ponzu = ponzu · wasabi = wasabi",
+   hint1:"País + buey premium + carne + seta encurtida + salsa cítrica con wasabi",
+   hint2:"Japonesa = Japanese · wagyu = wagyu · setas = mushrooms · encurtidas = pickled · salsa ponzu = ponzu · wasabi = wasabi",
    sauce:{en:"Wasabi ponzu — light citrus soy with wasabi, fresh and delicate", es:"Ponzu de wasabi — soja cítrica con wasabi, fresca y delicada"},
    tip:"⚠️ Preguntar temperatura. wagyu = WAH-gyoo. Suave: wah·gyoo."},
 
@@ -295,17 +302,17 @@ const ALL_DISHES = [
 
   // ROBATA VEG
   {section:"Robata Veg", emoji:"🫑", type:"dish",
-   es:"Pimientos de Padrón con Sal de Yuzu", en:"Grilled padron peppers with yuzu salt",
+   es:"Pimientos de Padrón a la Parrilla con Sal de Yuzu", en:"Grilled padron peppers with yuzu salt",
    pronounce:"GRILD PAD-ron PEP-erz with YOO-zoo SOLT",
    hint1:"Método de cocción + vegetal español + condimento japonés",
    hint2:"A la parrilla = grilled · pimientos de padrón = padron peppers · sal de yuzu = yuzu salt",
    sauce:null, tip:"grilled = GRILD. padron = PAD-ron."},
 
   {section:"Robata Veg", emoji:"🥦", type:"dish",
-   es:"Bimi Brócoli con Aderezo de Cebolla Caramelizada y Trufa", en:"Bimi broccoli with caramelised onion and truffle dressing",
-   pronounce:"BEE-mee BROK-oh-lee with kar-ah-MELD UN-yun and TRU-ful DRES-ing",
-   hint1:"Variedad de brócoli + aderezo de cebolla + hongo raro",
-   hint2:"Bimi = bimi · brócoli = broccoli · cebolla caramelizada = caramelised onion · trufa = truffle",
+   es:"Bimi Brócoli y Wafu con Trufa", en:"Tenderstem broccoli with wafu truffle dressing",
+   pronounce:"TEN-der-stem BROK-oh-lee with WAH-foo TRU-ful DRES-ing",
+   hint1:"Variedad de brócoli + nombre japonés + hongo raro",
+   hint2:"Bimi brócoli = tenderstem broccoli · wafu = wafu · trufa = truffle",
    sauce:{en:"Caramelised onion and truffle dressing — sweet, rich and aromatic", es:"Aderezo de cebolla caramelizada y trufa — dulce, rico y aromático"},
    tip:"bimi = BEE-mee. Es una variedad de brócoli más tierna. caramelised = kar-ah-MELD."},
 
@@ -387,6 +394,20 @@ const ALL_DISHES = [
    sauce:{en:"Wasabi mayo — creamy mayo with wasabi, fresh with a gentle heat", es:"Mayonesa de wasabi — cremosa con calor suave"},
    tip:"crispy = KRIS-pee. wasabi mayo = wah-SAH-bee MY-oh."},
 
+  {section:"Sushi & Maki", emoji:"🍣", type:"dish",
+   es:"Tartare de Atún con Caviar de Oscietra y Crackers de Arroz y Alga", en:"Tuna tartare with oscietra caviar and nori rice cracker",
+   pronounce:"TOO-na TAR-tar with os-YET-ra KAV-ee-ar and NOR-ee RYSS KRAK-er",
+   hint1:"Pescado + preparación cruda + caviar premium + alga + crujiente de arroz",
+   hint2:"Atún = tuna · tartare = tartare · caviar de oscietra = oscietra caviar · alga = nori · crackers de arroz = rice cracker",
+   sauce:null, tip:"oscietra = os-YET-ra. Caviar premium. tuna tartare = TOO-na TAR-tar."},
+
+  {section:"Sushi & Maki", emoji:"🍣", type:"dish",
+   es:"Gunkan de Wagyu con Caviar de Oscietra", en:"Wagyu gunkan with oscietra caviar",
+   pronounce:"WAH-gyoo GUN-kan with os-YET-ra KAV-ee-ar",
+   hint1:"Tipo de sushi + buey premium + caviar premium",
+   hint2:"Wagyu = wagyu · gunkan = tipo de sushi con alga · caviar de oscietra = oscietra caviar",
+   sauce:null, tip:"gunkan = GUN-kan. Tipo de sushi en forma de barco. wagyu = WAH-gyoo."},
+
   // DESSERTS
   {section:"Desserts", emoji:"🧁", type:"dish",
    es:"Tarta de Queso de Guayaba con Crumble de Sésamo Negro y Galleta de Mango", en:"Guava cheesecake with black sesame crumble and mango biscuit",
@@ -417,7 +438,7 @@ const ALL_DISHES = [
    sauce:null, tip:"pudding = PUD-ing. green tea = GREEN TEE. pear = PAIR (como 'par')."},
 
   {section:"Desserts", emoji:"🍓", type:"dish",
-   es:"Selección de Frutas Exóticas", en:"Selection of exotic fruits",
+   es:"Selección de Frutas Exótica", en:"Selection of exotic fruit",
    pronounce:"sel-EK-shon of ig-ZOT-ik FROOTS",
    hint1:"Palabra para 'variedad' + tipo de alimentos + adjetivo tropical",
    hint2:"Selección = selection · frutas = fruits · exóticas = exotic",
